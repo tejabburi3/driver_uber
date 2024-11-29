@@ -83,7 +83,7 @@ else:
     # Driver is logged in
     driver_id = st.session_state.driver_id
     email = st.session_state.driver_email
-    st.success(f"Logged in successfully as Driver ID: {driver_id}")
+    st.success(f" 🛣️ Logged in successfully  😊 !")
 
     # Filter data for the driver
     driver_data = data[data['Driver_id'] == driver_id]
