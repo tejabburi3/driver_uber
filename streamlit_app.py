@@ -98,6 +98,14 @@ else:
 
     # Sidebar for top demand areas
     st.sidebar.title("Top Demand Areas")
+    demand_supply_summary = (
+        demand_per_hour_area.merge(
+            supply_per_hour_area, 
+            on=['Pickup_location', 'Hour_of_day', 'Vehicle_mode'], 
+            how='left'
+        )
+        .fillna(0)  # Fill missing supply values with 0
+    )
     current_hour_current_day_demand_all_areas = current_day_demand_per_hour_area[
         (current_day_demand_per_hour_area['Hour_of_day'] == current_hour) & 
         (current_day_demand_per_hour_area['Vehicle_mode'].isin(ride_counts.index))
@@ -117,7 +125,7 @@ else:
     # Display top 3 demand areas
     st.sidebar.success(f"### Top 3 Areas with Highest Demand on {current_day_of_week}s at {formatted_current_hour}")
     for index, row in current_day_demand_summary.head(3).iterrows():
-        st.sidebar.success(f"{row['Pickup_location']}: {row['Demand']} rides per hour")
+        st.sidebar.success(f"{row['Pickup_location']}: {row['Demand']} rides per hour, {row['Supply']} supply")
 
     # Display all demand counts on the main page
     st.write(f"### {current_day_of_week} Rides Booking Across All Areas in Current Hour")
