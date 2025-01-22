@@ -114,6 +114,20 @@ else:
 
     areas = data['Pickup_location'].unique()
     selected_area = st.selectbox("Select the area you are currently in:", ["Select an area"] + list(areas), index=0)
+    pivot_demand_area = current_day_demand_per_hour_area.pivot_table(
+    index=['Pickup_location', 'Vehicle_mode'],
+    columns='Hour_of_day',
+    values='Demand',
+    fill_value=0
+)
+
+pivot_supply_area = current_day_supply_per_hour_area.pivot_table(
+    index=['Pickup_location', 'Vehicle_mode'],
+    columns='Hour_of_day',
+    values='Supply',
+    fill_value=0
+)
+
     if selected_area != "Select an area":
         st.session_state.selected_area = selected_area
         st.success(f"Your current location is: {selected_area}")
