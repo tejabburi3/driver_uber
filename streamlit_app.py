@@ -114,7 +114,8 @@ else:
 
     areas = data['Pickup_location'].unique()
     selected_area = st.selectbox("Select the area you are currently in:", ["Select an area"] + list(areas), index=0)
-    pivot_demand_area = current_day_demand_per_hour_area.pivot_table(
+    # Create pivot tables for demand and supply
+pivot_demand_area = current_day_demand_per_hour_area.pivot_table(
     index=['Pickup_location', 'Vehicle_mode'],
     columns='Hour_of_day',
     values='Demand',
@@ -128,19 +129,26 @@ pivot_supply_area = current_day_supply_per_hour_area.pivot_table(
     fill_value=0
 )
 
-    if selected_area != "Select an area":
-        st.session_state.selected_area = selected_area
-        st.success(f"Your current location is: {selected_area}")
+# Streamlit logic for the selected area
+if selected_area != "Select an area":
+    st.session_state.selected_area = selected_area
+    st.success(f"Your current location is: {selected_area}")
 
-        filtered_demand = pivot_demand_area.loc[(selected_area, vehicle)]
-        filtered_supply = pivot_supply_area.loc[(selected_area, vehicle)]
+    for vehicle in ride_counts.index:  # Iterate over vehicle modes
+        if (selected_area, vehicle) in pivot_demand_area.index:
+            # Filter demand and supply for the selected area and vehicle mode
+            filtered_demand = pivot_demand_area.loc[(selected_area, vehicle)]
+            filtered_supply = pivot_supply_area.loc[(selected_area, vehicle)]
 
-        max_demand_hour = filtered_demand.idxmax()
-        max_demand = filtered_demand[max_demand_hour]
-        max_supply = filtered_supply[max_demand_hour]
+            # Find the hour of maximum demand
+            max_demand_hour = filtered_demand.idxmax()
+            max_demand = filtered_demand[max_demand_hour]
+            max_supply = filtered_supply[max_demand_hour]
 
-        # Format the hour to 12-hour format with AM/PM for the max demand
-        formatted_max_demand_hour = f"{max_demand_hour % 12 or 12} {'AM' if max_demand_hour < 12 else 'PM'}"
-        
-        st.write(f"**Highest Demand of {vehicle} in {selected_area}:** {max_demand} rides at {formatted_max_demand_hour}.")
-        st.write(f"**Supply at this time:** {max_supply} rides.")
+            # Format the hour to 12-hour format with AM/PM for the max demand
+            formatted_max_demand_hour = f"{max_demand_hour % 12 or 12} {'AM' if max_demand_hour < 12 else 'PM'}"
+
+            st.write(f"**Highest Demand of {vehicle} in {selected_area}:** {max_demand} rides at {formatted_max_demand_hour}.")
+            st.write(f"**Supply at this time:** {max_supply} rides.")
+        else:
+            st.write(f"No data available for {vehicle} in {selected_area}.")
