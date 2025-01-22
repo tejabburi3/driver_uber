@@ -106,7 +106,7 @@ else:
         st.sidebar.success(f"{row['Pickup_location']}: {row['Demand']} rides booked, {row['Supply']} rides completed")
 
     st.write(f"### Demand and Supply for {current_day_of_week} in the Current Hour")
-    for index, row in area_summary.iterrows():
+    for index, row in top_areas.iterrows():
         st.write(
             f"**{row['Pickup_location']}**: {row['Demand']} demand, {row['Supply']} supply"
         )
