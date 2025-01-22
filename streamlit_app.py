@@ -106,7 +106,11 @@ else:
         st.sidebar.success(f"{row['Pickup_location']}: {row['Demand']} rides booked, {row['Supply']} rides completed")
 
     st.write(f"### Demand and Supply for {current_day_of_week} in the Current Hour")
-    st.dataframe(current_hour_demand)
+    for index, row in area_summary.iterrows():
+        st.write(
+            f"**{row['Pickup_location']}**: {row['Demand']} demand, {row['Supply']} supply"
+        )
+
 
     areas = data['Pickup_location'].unique()
     selected_area = st.selectbox("Select the area you are currently in:", ["Select an area"] + list(areas), index=0)
