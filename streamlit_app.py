@@ -114,13 +114,19 @@ else:
 
     areas = data['Pickup_location'].unique()
     selected_area = st.selectbox("Select the area you are currently in:", ["Select an area"] + list(areas), index=0)
-
     if selected_area != "Select an area":
+        st.session_state.selected_area = selected_area
         st.success(f"Your current location is: {selected_area}")
 
-        selected_area_data = demand_supply_summary[
-            (demand_supply_summary['Pickup_location'] == selected_area) & 
-            (demand_supply_summary['Hour_of_day'] == current_hour)
-        ]
-        st.write(f"### Demand and Supply in {selected_area}")
-        st.dataframe(selected_area_data)
+        filtered_demand = pivot_demand_area.loc[(selected_area, vehicle)]
+        filtered_supply = pivot_supply_area.loc[(selected_area, vehicle)]
+
+        max_demand_hour = filtered_demand.idxmax()
+        max_demand = filtered_demand[max_demand_hour]
+        max_supply = filtered_supply[max_demand_hour]
+
+        # Format the hour to 12-hour format with AM/PM for the max demand
+        formatted_max_demand_hour = f"{max_demand_hour % 12 or 12} {'AM' if max_demand_hour < 12 else 'PM'}"
+        
+        st.write(f"**Highest Demand of {vehicle} in {selected_area}:** {max_demand} rides at {formatted_max_demand_hour}.")
+        st.write(f"**Supply at this time:** {max_supply} rides.")
