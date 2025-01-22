@@ -6,6 +6,7 @@ import zipfile
 import os
 import pytz
 from datetime import datetime
+
 zip_file_path = "hyderabad_uber_dataset_r.zip"
 dataset_file_name = "hyderabad_uber_dataset_r.csv"  # Replace with the exact file name inside the zip
 
@@ -17,7 +18,8 @@ if not os.path.exists(dataset_file_name):
 
 # Load the dataset
 data = pd.read_csv(dataset_file_name)
- # Convert Pickup_datetime to datetime and handle timezone conversion
+
+# Convert Pickup_datetime to datetime and handle timezone conversion
 data['Pickup_datetime'] = pd.to_datetime(data['Pickup_datetime'], errors='coerce')
 india_timezone = pytz.timezone('Asia/Kolkata')
 data['Pickup_datetime'] = data['Pickup_datetime'].dt.tz_localize('UTC').dt.tz_convert(india_timezone)
@@ -83,7 +85,7 @@ else:
     # Driver is logged in
     driver_id = st.session_state.driver_id
     email = st.session_state.driver_email
-    st.success(f" 🛣 Logged in successfully  😊 !")
+    st.success(f"🛣 Logged in successfully 😊!")
 
     # Filter data for the driver
     driver_data = data[data['Driver_id'] == driver_id]
@@ -99,8 +101,8 @@ else:
     # Sidebar for top demand areas
     st.sidebar.title("Top Demand Areas")
     demand_supply_summary = (
-        demand_per_hour_area.merge(
-            supply_per_hour_area, 
+        current_day_demand_per_hour_area.merge(
+            current_day_supply_per_hour_area, 
             on=['Pickup_location', 'Hour_of_day', 'Vehicle_mode'], 
             how='left'
         )
@@ -125,7 +127,7 @@ else:
     # Display top 3 demand areas
     st.sidebar.success(f"### Top 3 Areas with Highest Demand on {current_day_of_week}s at {formatted_current_hour}")
     for index, row in current_day_demand_summary.head(3).iterrows():
-        st.sidebar.success(f"{row['Pickup_location']}: {row['Demand']} rides per hour, {row['Supply']} supply")
+        st.sidebar.success(f"{row['Pickup_location']}: {row['Demand']} rides per hour")
 
     # Display all demand counts on the main page
     st.write(f"### {current_day_of_week} Rides Booking Across All Areas in Current Hour")
@@ -144,15 +146,16 @@ else:
         st.session_state.selected_area = selected_area
         st.success(f"Your current location is: {selected_area}")
 
-        filtered_current_day_demand = current_day_pivot_demand_area.loc[(selected_area, vehicle)]
-        filtered_current_day_supply = current_day_pivot_supply_area.loc[(selected_area, vehicle)]
+        for vehicle in ride_counts.index:
+            filtered_current_day_demand = current_day_pivot_demand_area.loc[selected_area, vehicle]
+            filtered_current_day_supply = current_day_pivot_supply_area.loc[selected_area, vehicle]
 
-        max_current_day_demand_hour = filtered_current_day_demand.idxmax()
-        max_current_day_demand = filtered_current_day_demand[max_current_day_demand_hour]
-        max_current_day_supply = filtered_current_day_supply[max_current_day_demand_hour]
+            max_current_day_demand_hour = filtered_current_day_demand.idxmax()
+            max_current_day_demand = filtered_current_day_demand[max_current_day_demand_hour]
+            max_current_day_supply = filtered_current_day_supply[max_current_day_demand_hour]
 
-        # Format max demand hour
-        formatted_max_current_day_demand_hour = f"{max_current_day_demand_hour % 12 or 12} {'AM' if max_current_day_demand_hour < 12 else 'PM'}"
-        
-        st.write(f"*Highest Demand for {vehicle} in {selected_area} on {current_day_of_week}s:* {max_current_day_demand} rides at {formatted_max_current_day_demand_hour}.")
-        st.write(f"*Supply at this time:* {max_current_day_supply} rides.")
+            # Format max demand hour
+            formatted_max_current_day_demand_hour = f"{max_current_day_demand_hour % 12 or 12} {'AM' if max_current_day_demand_hour < 12 else 'PM'}"
+            
+            st.write(f"*Highest Demand for {vehicle} in {selected_area} on {current_day_of_week}s:* {max_current_day_demand} rides at {formatted_max_current_day_demand_hour}.")
+            st.write(f"*Supply at this time:* {max_current_day_supply} rides.")
