@@ -104,7 +104,7 @@ else:
 
     st.sidebar.success(f"### Top 3 Areas with Highest Demand on {current_day_of_week}s at {current_hour}:00")
     for _, row in top_areas.head(3).iterrows():
-        st.sidebar.success(f"{row['Pickup_location']}: {row['Demand']} rides booked, {row['Supply']} rides completed")
+        st.sidebar.success(f"{row['Pickup_location']}: {row['Demand']} rides demand , {row['Supply']}  supply ")
 
     st.write(f"### Demand and Supply for {current_day_of_week} in the Current Hour")
     for index, row in top_areas.iterrows():
