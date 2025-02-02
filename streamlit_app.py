@@ -130,7 +130,7 @@ pivot_supply_area = current_day_supply_per_hour_area.pivot_table(
 )
 
 # Streamlit logic for the selected area
-if selected_area!= "Select an area":
+if selected_area != "Select an area":
     st.session_state.selected_area = selected_area
     st.success(f"Your current location is: {selected_area}")
 
